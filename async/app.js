@@ -71,28 +71,65 @@
 // console.log('Fin');
 
 
-//Promesses en parallèle
+//*****Promesses en parallèle
+
+// console.log('Début');
+
+// let p1 = new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//         resolve('promise 1')
+//     }, 1500)
+// })
+
+// let p2 = new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//         resolve('promise 2')
+//     }, 3000)
+// })
+
+// // .all --> attend que ttes les promesse soit faite et affiche les résultats dans un array
+// Promise.all([p1, p2])
+//     .then(result => console.log(result))
+
+// // .race --> compare la vitesse de chaque promesse et afficht la plus rapide
+// Promise.race([p1, p2])
+//     .then(result => console.log(result))
+
+// console.log('Fin');
+
+// *******  AWAIT / ASYNC
 
 console.log('Début');
+//exécution d'une fonction anonyme
+// (() => {
+//     console.log('Milieu')
+// })()
 
-let p1 = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        resolve('promise 1')
-    }, 1500)
-})
+(async () => {
+    try {
+        let member = await getMember()
+        let articles = await getArticles(member)
+        console.log(articles)
+    } catch (err) {
+        console.log(err.message)
+    }
+})()
 
-let p2 = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        resolve('promise 2')
-    }, 3000)
-})
+function getMember() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve('Member 1')
+        }, 1500)
+    })
+}
 
-// .all --> attend que ttes les promesse soit faite et affiche les résultats dans un array
-Promise.all([p1, p2])
-    .then(result => console.log(result))
+function getArticles() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve([1, 2, 3])
+        }, 1500)
+    })
+}
 
-// .race --> compare la vitesse de chaque promesse et afficht la plus rapide
-Promise.race([p1, p2])
-    .then(result => console.log(result))
 
 console.log('Fin');
