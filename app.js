@@ -35,6 +35,7 @@ mysql.createConnection({
 
     //remplace l'URL '/api/v1/members/:id'
     MembersRouter.route('/:id')
+
         // Récupère un membre avec son ID
         .get(async (req, res) => {
             let member = await Members.getByID(req.params.id)
@@ -120,29 +121,9 @@ mysql.createConnection({
         //localhost:8080/api/v1/members?max=2
 
         // Récupère tous les membres
-        .get((req, res) => {
-
-            if (req.query.max != undefined && req.query.max > 0) {
-
-                db.query('SELECT * FROM members LIMIT 0, ?', [req.query.max], (err, result) => {
-                    if (err)
-                        res.json(error(err.message))
-                    else
-                        res.json(success(result))
-                })
-
-
-            } else if (req.query.max != undefined) {
-                res.json(error('Wrong max value'))
-            } else {
-
-                db.query('SELECT * FROM members', (err, result) => {
-                    if (err)
-                        res.json(error(err.message))
-                    else
-                        res.json(success(result))
-                })
-            }
+        .get(async (req, res) => {
+            let allMembers = await Members.getAll(req.query.max)
+            res.json(checkAndChange(allMembers))
         })
 
         // Ajouter un membre avec son nom
