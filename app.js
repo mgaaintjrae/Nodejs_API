@@ -92,29 +92,46 @@ db.connect((err) => {
             // Modifié un membre avec son ID
             .put((req, res) => {
 
-                let index = getIndex(req.params.id);
+                if (req.body.name) {
 
-                if (typeof (index) == 'string') {
-                    res.json(error(index))
-                } else {
+                    db.query('SELECT * FROM members WHERE id = ?', [req.params.id], (err, result) => {
+                        if (err) {
+                            res.json(error(err.message))
+                        } else {
 
-                    let same = false
+                            if (result[0] != undefined) {
 
-                    for (let i = 0; i < members.length; i++) {
-                        if (req.body.name == members[i].name && req.params.id != members[i].id) {
-                            same = true
-                            break
+                                db.query('SELECT * FROM members WHERE name = ? AND id != ?', [req.body.name, req.params.id], (err, result) => {
+                                    if (err) {
+                                        res.json(error(err.message))
+                                    } else {
+
+                                        if (result[0] != undefined) {
+                                            res.json(error('same name'))
+                                        } else {
+
+                                            db.query('UPDATE members SET name = ? WHERE id = ?', [req.body.name, req.params.id], (err, result) => {
+                                                if (err) {
+                                                    res.json(error(err.message))
+                                                } else {
+
+                                                    res.json(success(true))
+                                                }
+                                            })
+                                        }
+                                    }
+                                })
+
+                            } else {
+                                res.json(error('Wrong id'))
+                            }
                         }
-                    }
+                    })
 
-                    if (same) {
-                        res.json(error('same name'))
-                    } else {
-                        members[index].name = req.body.name
-                        res.json(success(true))
-                    }
-
+                } else {
+                    res.json(error('No name value'))
                 }
+
             })
 
             // Supprimer un membre avec son ID
@@ -199,7 +216,7 @@ db.connect((err) => {
 
                         }
                     })
-                   
+
 
                 } else {
                     res.json(error('No name value'))
