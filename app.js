@@ -127,47 +127,9 @@ mysql.createConnection({
         })
 
         // Ajouter un membre avec son nom
-        .post((req, res) => {
-
-            if (req.body.name) {
-
-
-                db.query('SELECT * FROM members WHERE name = ?', [req.body.name], (err, result) => {
-                    if (err) {
-                        res.json(error(err.message))
-                    } else {
-
-                        if (result[0] != undefined) {
-                            res.json(error('Name already taken'))
-                        } else {
-                            db.query('INSERT INTO members(name) VALUES(?)', [req.body.name], (err, result) => {
-                                if (err) {
-                                    res.json(error(err.message))
-                                } else {
-
-                                    db.query('SELECT * FROM members WHERE name = ?', [req.body.name], (err, result) => {
-
-                                        if (err) {
-                                            res.json(error(err.message))
-                                        } else {
-                                            res.json(success({
-                                                id: result[0].id,
-                                                name: result[0].name
-                                            }))
-                                        }
-                                    })
-                                }
-                            })
-                        }
-
-                    }
-                })
-
-
-            } else {
-                res.json(error('No name value'))
-            }
-
+        .post(async (req, res) => {
+            let addMember = await Members.add(req.body.name)
+            res.json(checkAndChange(addMember))
         })
 
     app.use(config.rootAPI + 'members', MembersRouter)
