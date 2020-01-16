@@ -80,7 +80,7 @@ db.connect((err) => {
                     } else {
 
                         if (result[0] != undefined) {
-                            res.json(success(result))
+                            res.json(success(result[0]))
                         } else {
                             res.json(error('Wrong id'))
                         }
@@ -163,33 +163,43 @@ db.connect((err) => {
                 }
             })
 
-            // Ajouter un membre
+            // Ajouter un membre avec son nom
             .post((req, res) => {
 
                 if (req.body.name) {
 
-                    let sameName = false
 
-                    for (let i = 0; i < members.length; i++) {
-                        if (members[i].name == req.body.name) {
-                            sameName = true
-                            break
+                    db.query('SELECT * FROM members WHERE name = ?', [req.body.name], (err, result) => {
+                        if (err) {
+                            res.json(error(err.message))
+                        } else {
+
+                            if (result[0] != undefined) {
+                                res.json(error('Name already taken'))
+                            } else {
+                                db.query('INSERT INTO members(name) VALUES(?)', [req.body.name], (err, result) => {
+                                    if (err) {
+                                        res.json(error(err.message))
+                                    } else {
+
+                                        db.query('SELECT * FROM members WHERE name = ?', [req.body.name], (err, result) => {
+
+                                            if (err) {
+                                                res.json(error(err.message))
+                                            } else {
+                                                res.json(success({
+                                                    id: result[0].id,
+                                                    name: result[0].name
+                                                }))
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+
                         }
-                    }
-
-                    if (sameName) {
-                        res.json(error('Name already taken'))
-                    } else {
-                        let member = {
-                            id: createID(),
-                            name: req.body.name
-                        }
-
-                        members.push(member)
-
-                        res.json(success(member))
-
-                    }
+                    })
+                   
 
                 } else {
                     res.json(error('No name value'))
