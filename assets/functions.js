@@ -12,4 +12,15 @@ exports.error = function(message) {
     }
 }
 
+//tester si la valeur que l'on envoi est une erreur
+exports.isErr = (err) => {
+    return err instanceof Error;
+}
 
+exports.checkAndChange = (obj) => {
+    if(this.isErr(obj)) {
+        return this.error(obj.message)
+    } else {
+        return this.success(obj)
+    }
+}

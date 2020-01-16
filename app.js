@@ -4,7 +4,8 @@ const config = require('./assets/config');
 
 const {
     success,
-    error
+    error,
+    checkAndChange
 } = require('./assets/functions');
 const mysql = require('promise-mysql');
 const bodyParser = require('body-parser');
@@ -17,7 +18,7 @@ mysql.createConnection({
     user: config.db.user,
     password: config.db.password
 }).then((db) => {
-    
+
     //application encapsulé à la connexion de la BDD
     console.log('Connected.')
 
@@ -32,55 +33,12 @@ mysql.createConnection({
         extended: true
     }))
 
-    //ajout d'un middelware avec les app.get pour avoir un debug avec l'url dans la console
-    // app.use((req, res, next) => {
-    //     console.log('URL : ' + req.url);
-    //     next()
-    // })
-
-    // app.get('/api', (req, res) => {
-    //     res.send('Root API')
-    // })
-
-    // app.get('/api/v1', (req, res) => {
-    //     res.send('API Version 1')
-    // })
-
-    // app.get('/api/v1/books/:id', (req, res) => {
-    //     res.send(req.params)
-    // })
-
-    //rooting
-    // app.get('/api/v1/members/:id', (req, res) => {
-    //     res.send(members[(req.params.id)-1])
-    // })
-
-    // //localhost:8080/api/v1/members?max=2
-    // app.get('/api/v1/members', (req, res) => {
-    //     if (req.query.max != undefined && req.query.max > 0) {
-    //         res.send(members.slice(0, req.query.max))
-    //     } else {
-    //         res.send(members)
-    //     }    
-    // })
-
     //remplace l'URL '/api/v1/members/:id'
     MembersRouter.route('/:id')
         // Récupère un membre avec son ID
-        .get((req, res) => {
-
-            db.query('SELECT * FROM members WHERE id = ?', [req.params.id], (err, result) => {
-                if (err) {
-                    res.json(error(err.message))
-                } else {
-
-                    if (result[0] != undefined) {
-                        res.json(success(result[0]))
-                    } else {
-                        res.json(error('Wrong id'))
-                    }
-                }
-            })
+        .get(async (req, res) => {
+            let member = await Members.getByID(req.params.id)
+            res.json(checkAndChange(member))
         })
 
 
