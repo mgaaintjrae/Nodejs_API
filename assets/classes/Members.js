@@ -65,13 +65,13 @@ let Members = class {
                             next(new Error('Name already taken'))
 
                         } else {
-                            //sinon on renvoi la promesse qui permet d'insérer ke nouveau membre
+                            //sinon on renvoi la promesse qui permet d'insérer le nouveau membre
                             return db.query('INSERT INTO members(name) VALUES(?)', [name])
                         }
                     })
                     .then(() => {
                         return db.query('SELECT * FROM members WHERE name = ?', [name])
-                 
+
                     })
                     .then((result) => {
                         next({
@@ -84,6 +84,27 @@ let Members = class {
             } else {
                 next(new Error('No name value'))
             }
+        })
+    }
+
+    //Supprimer un membre
+    static delete(id) {
+
+        return new Promise((next) => {
+
+            //On teste si l'ID existe
+            db.query('SELECT * FROM members WHERE id = ?', [id])
+                .then((result) => {
+                    //Vérifier si il y a déjà un membre
+                    if (result[0] != undefined) {
+                        //Si il existe on le supprime
+                        return db.query('DELETE FROM members WHERE id = ?', [id])
+                    } else {
+                        next(new Error('Wrong id'))
+                    }
+                })
+                .then(() => next(true))
+                .catch((err) => next(err))
         })
     }
 }
