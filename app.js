@@ -74,15 +74,20 @@ db.connect((err) => {
             // Récupère un membre avec son ID
             .get((req, res) => {
 
-                let index = getIndex(req.params.id);
+                db.query('SELECT * FROM members WHERE id = ?', [req.params.id], (err, result) => {
+                    if (err) {
+                        res.json(error(err.message))
+                    } else {
 
-                if (typeof (index) == 'string') {
-                    res.json(error(index))
-                } else {
-                    res.json(success(members[index]))
-                }
-                // res.json(success(members[(req.params.id) - 1].name))
+                        if (result[0] != undefined) {
+                            res.json(success(result))
+                        } else {
+                            res.json(error('Wrong id'))
+                        }
+                    }
+                })
             })
+
 
             // Modifié un membre avec son ID
             .put((req, res) => {
@@ -136,11 +141,25 @@ db.connect((err) => {
             .get((req, res) => {
 
                 if (req.query.max != undefined && req.query.max > 0) {
-                    res.json(success(members.slice(0, req.query.max)))
+
+                    db.query('SELECT * FROM members LIMIT 0, ?', [req.query.max], (err, result) => {
+                        if (err)
+                            res.json(error(err.message))
+                        else
+                            res.json(success(result))
+                    })
+
+
                 } else if (req.query.max != undefined) {
                     res.json(error('Wrong max value'))
                 } else {
-                    res.json(success(members))
+
+                    db.query('SELECT * FROM members', (err, result) => {
+                        if (err)
+                            res.json(error(err.message))
+                        else
+                            res.json(success(result))
+                    })
                 }
             })
 
