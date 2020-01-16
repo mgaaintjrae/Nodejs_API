@@ -52,10 +52,10 @@ let Members = class {
 
         return new Promise((next) => {
 
-            //si le nom est différent d'undefined et que son trim soit différent de rien
+            //si le nom est différent d'undefined et que son trim est différent de rien
             if (name != undefined && name.trim() != '') {
-
-                name = name.trim()
+                name = name.trim() 
+                //La méthode trim () supprime les espaces des deux côtés d'une chaîne.
 
                 db.query('SELECT * FROM members WHERE name = ?', [name])
                     .then((result) => {
@@ -63,7 +63,6 @@ let Members = class {
                         if (result[0] != undefined) {
                             //si oui on balance l'erreur
                             next(new Error('Name already taken'))
-
                         } else {
                             //sinon on renvoi la promesse qui permet d'insérer le nouveau membre
                             return db.query('INSERT INTO members(name) VALUES(?)', [name])
@@ -71,7 +70,6 @@ let Members = class {
                     })
                     .then(() => {
                         return db.query('SELECT * FROM members WHERE name = ?', [name])
-
                     })
                     .then((result) => {
                         next({
@@ -80,7 +78,41 @@ let Members = class {
                         })
                     })
                     .catch((err) => next(err))
+            } else {
+                next(new Error('No name value'))
+            }
+        })
+    }
 
+    //Modifier un membre
+    static edit(id, name) {
+
+        return new Promise((next) => {
+
+            if (name != undefined && name.trim() != '') {
+                name = name.trim()
+
+                //Vérifie si le membre existe
+                db.query('SELECT * FROM members WHERE id = ?', [id])
+                    .then((result) => {
+                        //Si le membre existe
+                        if (result[0] != undefined) {
+                            return db.query('SELECT * FROM members WHERE name = ? AND id != ?', [name, id])
+                        } else {
+                            next(new Error('Wrong id'))
+                        }
+                    })
+                    .then((result) => {
+                        //Si il existe déjà un membre avec le même nom
+                        if (result[0] != undefined) {
+                            //alors on balance l'erreur
+                            next(new Error('same name'))
+                        } else {
+                            return db.query('UPDATE members SET name = ? WHERE id = ?', [name, id])
+                        }
+                    })
+                    .then(() => next(true))
+                    .catch((err) => next(err))
             } else {
                 next(new Error('No name value'))
             }
