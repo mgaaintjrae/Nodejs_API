@@ -137,17 +137,29 @@ db.connect((err) => {
             // Supprimer un membre avec son ID
             .delete((req, res) => {
 
-                let index = getIndex(req.params.id);
+                //On teste si l'ID existe
+                db.query('SELECT * FROM members WHERE id = ?', [req.params.id], (err, result) => {
+                    if (err) {
+                        res.json(error(err.message))
+                    } else {
 
-                //on teste si le membre existe
-                if (typeof (index) == 'string') {
-                    res.json(error(index))
-                } else {
-                    //si pas d'erreur on supprime le membre
+                        if (result[0] != undefined) {
 
-                    members.splice(index, 1)
-                    res.json(success(members))
-                }
+                            db.query('DELETE FROM members WHERE id = ?', [req.params.id], (err, result) => {
+                                if (err) {
+                                    res.json(error(err.message))
+                                } else {
+                                    res.json(success(true))
+
+                                }
+                            })
+
+                        } else {
+                            res.json(error('Wrong id'))
+                        }
+                    }
+                })
+
             })
 
         //remplace l'URL '/api/v1/members'
@@ -246,16 +258,3 @@ db.connect((err) => {
 //     }
 // ]
 
-
-//function permettant de récupérer les membres
-function getIndex(id) {
-    for (let i = 0; i < members.length; i++) {
-        if (members[i].id == id)
-            return i
-    }
-    return 'wrong id'
-}
-
-function createID() {
-    return lastMember = members[members.length - 1].id + 1
-}
