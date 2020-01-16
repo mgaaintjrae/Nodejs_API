@@ -1,5 +1,5 @@
 const express = require('express');
-const morgan = require('morgan');
+const morgan = require('morgan')('dev')
 const config = require('./assets/config');
 
 const {
@@ -30,8 +30,10 @@ db.connect((err) => {
 
         const app = express();
         let MembersRouter = express.Router()
-
-        app.use(morgan('dev'));
+        let Members = require('./assets/classes/Members')(db, config)
+        // console.log(Members);
+        //permet de voir les requête HTTP
+        app.use(morgan);
         app.use(bodyParser.json()) // for parsing application/json
         app.use(bodyParser.urlencoded({
             extended: true
