@@ -1,6 +1,10 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const morgan = require('morgan')('dev')
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./assets/swagger.json');
 const config = require('./assets/config');
+
 
 const {
     success,
@@ -8,7 +12,7 @@ const {
     checkAndChange
 } = require('./assets/functions');
 const mysql = require('promise-mysql');
-const bodyParser = require('body-parser');
+
 
 
 //paramètre de connexion à la BDD
@@ -22,7 +26,8 @@ mysql.createConnection({
     //application encapsulé à la connexion de la BDD
     console.log('Connected.')
 
-    const app = express();
+    const app = express();   
+
     let MembersRouter = express.Router()
     let Members = require('./assets/classes/Members')(db, config)
     // console.log(Members);
@@ -32,6 +37,7 @@ mysql.createConnection({
     app.use(bodyParser.urlencoded({
         extended: true
     }))
+    app.use(config.rootAPI+'api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
     //remplace l'URL '/api/v1/members/:id'
     MembersRouter.route('/:id')
