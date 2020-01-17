@@ -16,10 +16,8 @@ app.use(bodyParser.urlencoded({
 }))
 
 // Routes
-app.get('/:name', (req, res) => {
-    res.render('index.twig', {
-        name: req.params.name
-    })
+app.get('/', (req, res) => {
+    res.render('index.twig')
 })
 
 // Lancement de l'application
