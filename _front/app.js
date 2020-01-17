@@ -2,6 +2,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')('dev')
+const twig = require('twig')
 
 // Variables globales
 const app = express()
@@ -15,8 +16,10 @@ app.use(bodyParser.urlencoded({
 }))
 
 // Routes
-app.get('/', (req, res) => {
-    res.sendFile(__dirname+'/views/index.html')
+app.get('/:name', (req, res) => {
+    res.render('index.twig', {
+        name: req.params.name
+    })
 })
 
 // Lancement de l'application
